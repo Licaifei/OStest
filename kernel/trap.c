@@ -55,7 +55,7 @@ usertrap(void)
 		// system call
 
 		if (p->killed) {
-			exit(-1);
+			exit();
 		}
 
 		// sepc points to the ecall instruction,
@@ -76,7 +76,7 @@ usertrap(void)
 	}
 
 	if (p->killed) {
-		exit(-1);
+		exit();
 	}
 
 	// give up the CPU if this is a timer interrupt.
@@ -99,10 +99,10 @@ usertrapret(void)
 	// now from kerneltrap() to usertrap().
 	intr_off();
 
-	// send syscalls, interrupts, and exceptions to trampoline.S
+	// send interrupts and exceptions to trampoline.S
 	w_stvec(TRAMPOLINE + (uservec - trampoline));
 
-	// set up trapframe values that uservec will need when
+	// set up values that uservec will need when
 	// the process next re-enters the kernel.
 	p->tf->kernel_satp = r_satp();         // kernel page table
 	p->tf->kernel_sp = p->kstack + PGSIZE; // process's kernel stack
@@ -133,6 +133,7 @@ usertrapret(void)
 
 // interrupts and exceptions from kernel code go here via kernelvec,
 // on whatever the current kernel stack is.
+// must be 4-byte aligned to fit in stvec.
 void
 kerneltrap()
 {
@@ -195,15 +196,9 @@ devintr()
 			uartintr();
 		} else if (irq == VIRTIO0_IRQ || irq == VIRTIO1_IRQ ) {
 			virtio_disk_intr(irq - VIRTIO0_IRQ);
-		} else {
-			// the PLIC sends each device interrupt to every core,
-			// which generates a lot of interrupts with irq==0.
 		}
 
-		if (irq) {
-			plic_complete(irq);
-		}
-
+		plic_complete(irq);
 		return 1;
 	} else if (scause == 0x8000000000000001L) {
 		// software interrupt from a machine-mode timer interrupt,

@@ -15,8 +15,6 @@ extern char etext[];  // kernel.ld sets this to end of kernel code.
 
 extern char trampoline[]; // trampoline.S
 
-void print(pagetable_t);
-
 /*
  * create a direct-map page table for the kernel and
  * turn on paging. called early, in supervisor mode.
@@ -105,10 +103,6 @@ walkaddr(pagetable_t pagetable, uint64 va)
 {
 	pte_t *pte;
 	uint64 pa;
-
-	if (va >= MAXVA) {
-		return 0;
-	}
 
 	pte = walk(pagetable, va, 0);
 	if (pte == 0) {
@@ -292,12 +286,7 @@ uvmdealloc(pagetable_t pagetable, uint64 oldsz, uint64 newsz)
 	if (newsz >= oldsz) {
 		return oldsz;
 	}
-
-	uint64 newup = PGROUNDUP(newsz);
-	if (newup < PGROUNDUP(oldsz)) {
-		uvmunmap(pagetable, newup, oldsz - newup, 1);
-	}
-
+	uvmunmap(pagetable, newsz, oldsz - newsz, 1);
 	return newsz;
 }
 
@@ -346,10 +335,10 @@ uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
 
 	for (i = 0; i < sz; i += PGSIZE) {
 		if ((pte = walk(old, i, 0)) == 0) {
-			panic("uvmcopy: pte should exist");
+			panic("copyuvm: pte should exist");
 		}
 		if ((*pte & PTE_V) == 0) {
-			panic("uvmcopy: page not present");
+			panic("copyuvm: page not present");
 		}
 		pa = PTE2PA(*pte);
 		flags = PTE_FLAGS(*pte);
@@ -392,7 +381,7 @@ copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
 	uint64 n, va0, pa0;
 
 	while (len > 0) {
-		va0 = PGROUNDDOWN(dstva);
+		va0 = (uint)PGROUNDDOWN(dstva);
 		pa0 = walkaddr(pagetable, va0);
 		if (pa0 == 0) {
 			return -1;
@@ -419,7 +408,7 @@ copyin(pagetable_t pagetable, char *dst, uint64 srcva, uint64 len)
 	uint64 n, va0, pa0;
 
 	while (len > 0) {
-		va0 = PGROUNDDOWN(srcva);
+		va0 = (uint)PGROUNDDOWN(srcva);
 		pa0 = walkaddr(pagetable, va0);
 		if (pa0 == 0) {
 			return -1;
@@ -448,7 +437,7 @@ copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
 	int got_null = 0;
 
 	while (got_null == 0 && max > 0) {
-		va0 = PGROUNDDOWN(srcva);
+		va0 = (uint)PGROUNDDOWN(srcva);
 		pa0 = walkaddr(pagetable, va0);
 		if (pa0 == 0) {
 			return -1;

@@ -24,9 +24,9 @@ SECTIONS
   .data : {
     *(.data)
   }
-  .bss : {
+  bss : {
     *(.bss)
-    *(.sbss*)
-     PROVIDE(end = .);
+    PROVIDE(end = .);
   }
+
 }

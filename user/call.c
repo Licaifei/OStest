@@ -16,5 +16,5 @@ int f(int x)
 void main(void)
 {
 	printf("%d %d\n", f(8) + 1, 13);
-	exit(0);
+	exit();
 }

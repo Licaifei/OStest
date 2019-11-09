@@ -3,8 +3,8 @@ struct rtcdate;
 
 // system calls
 int fork(void);
-int exit(int) __attribute__((noreturn));
-int wait(int *);
+int exit(void) __attribute__((noreturn));
+int wait(void);
 int pipe(int *);
 int write(int, const void *, int);
 int read(int, void *, int);
@@ -42,5 +42,3 @@ void *memset(void *, int, uint);
 void *malloc(uint);
 void free(void *);
 int atoi(const char *);
-int memcmp(const void *, const void *, uint);
-void *memcpy(void *, const void *, uint);

@@ -83,7 +83,7 @@ void            printfinit(void);
 
 // proc.c
 int             cpuid(void);
-void            exit(int);
+void            exit(void);
 int             fork(void);
 int             growproc(int);
 pagetable_t     proc_pagetable(struct proc *);
@@ -98,7 +98,7 @@ void            sched(void);
 void            setproc(struct proc *);
 void            sleep(void *, struct spinlock *);
 void            userinit(void);
-int             wait(uint64);
+int             wait(void);
 void            wakeup(void *);
 void            yield(void);
 int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
@@ -175,6 +175,7 @@ int             copyinstr(pagetable_t, char *, uint64, uint64);
 // plic.c
 void            plicinit(void);
 void            plicinithart(void);
+uint64          plic_pending(void);
 int             plic_claim(void);
 void            plic_complete(int);
 
@@ -185,24 +186,3 @@ void            virtio_disk_intr(int);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
-
-// Extra files for allocator lab
-
-
-// buddy.c
-void           bd_init(void *, void *);
-void           bd_free(void *);
-void           *bd_malloc(uint64);
-
-struct list {
-	struct list *next;
-	struct list *prev;
-};
-
-// list.c
-void lst_init(struct list *);
-void lst_remove(struct list *);
-void lst_push(struct list *, void *);
-void *lst_pop(struct list *);
-void lst_print(struct list *);
-int lst_empty(struct list *);

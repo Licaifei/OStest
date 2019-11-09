@@ -261,6 +261,7 @@ r_time()
 static inline void
 intr_on()
 {
+	w_sie(r_sie() | SIE_SEIE | SIE_STIE | SIE_SSIE);
 	w_sstatus(r_sstatus() | SSTATUS_SIE);
 }
 
@@ -337,7 +338,7 @@ sfence_vma()
 
 #define PTE2PA(pte) (((pte) >> 10) << 12)
 
-#define PTE_FLAGS(pte) ((pte) & 0x3FF)
+#define PTE_FLAGS(pte) ((pte) & (PTE_V|PTE_R|PTE_W|PTE_X|PTE_U))
 
 // extract the three 9-bit page table indices from a virtual address.
 #define PXMASK          0x1FF // 9 bits

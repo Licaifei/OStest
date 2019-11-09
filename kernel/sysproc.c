@@ -10,11 +10,7 @@
 uint64
 sys_exit(void)
 {
-	int n;
-	if (argint(0, &n) < 0) {
-		return -1;
-	}
-	exit(n);
+	exit();
 	return 0;  // not reached
 }
 
@@ -33,11 +29,7 @@ sys_fork(void)
 uint64
 sys_wait(void)
 {
-	uint64 p;
-	if (argaddr(0, &p) < 0) {
-		return -1;
-	}
-	return wait(p);
+	return wait();
 }
 
 uint64

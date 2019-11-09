@@ -20,4 +20,5 @@ myapi.key
 *-handin.tar.gz
 xv6.out*
 .vagrant/
+.gitattr*
 submissions/
